@@ -26,7 +26,7 @@ app.use((req, _res, next) => {
   next();
 });
 
-// Routes
+// Routes with /api prefix
 app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/lessons', lessonRoutes);
@@ -34,6 +34,15 @@ app.use('/api/topics', lessonRoutes);
 app.use('/api/attempts', attemptRoutes);
 app.use('/api/progress', attemptRoutes);
 app.use('/api/game', gameRoutes);
+
+// Also mount routes without /api prefix for resiliency and flexible reverse proxies
+app.use('/health', healthRoutes);
+app.use('/auth', authRoutes);
+app.use('/lessons', lessonRoutes);
+app.use('/topics', lessonRoutes);
+app.use('/attempts', attemptRoutes);
+app.use('/progress', attemptRoutes);
+app.use('/game', gameRoutes);
 
 // Root route
 app.get('/', (_req, res) => {
@@ -58,7 +67,7 @@ app.use((_req, res) => {
 });
 
 // Global error handler
-app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('[Unhandled Server Error]', err);
   res.status(500).json({ success: false, error: 'Internal Server Error' });
 });

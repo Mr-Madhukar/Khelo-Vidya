@@ -1,5 +1,7 @@
 import { SEED_DATA } from '../db/seedData.js';
+import { AttemptAnswer } from '../types/index.js';
 import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 
 interface SchoolRow {
   id: string;
@@ -62,7 +64,7 @@ interface AttemptRow {
   attempt_uuid: string;
   student_id: string;
   lesson_id: string;
-  answers: any;
+  answers: AttemptAnswer[];
   client_submitted_score: number;
   server_computed_score: number;
   total_questions: number;
@@ -127,6 +129,46 @@ class InMemDB {
       { id: 'sch-4', name: 'Kalahandi Model Vidyalaya, Bhawanipatna', udise_code: '21260400504', district: 'Kalahandi', created_at: new Date().toISOString() },
     ];
 
+    const demoPasswordHash = bcrypt.hashSync('password123', 10);
+    this.users = [
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        role: 'student',
+        name: 'Subhashree Dash',
+        email_or_username: 'subhashree_7',
+        password_hash: demoPasswordHash,
+        school_id: 'sch-1',
+        class_section: '7-A',
+        grade: 7,
+        language_pref: 'or',
+        created_at: new Date().toISOString(),
+      },
+      {
+        id: '00000000-0000-0000-0000-000000000002',
+        role: 'teacher',
+        name: 'Pradeep Kumar Nayak',
+        email_or_username: 'teacher_pradeep',
+        password_hash: demoPasswordHash,
+        school_id: 'sch-1',
+        class_section: 'STEM-Facilitator',
+        grade: null,
+        language_pref: 'or',
+        created_at: new Date().toISOString(),
+      },
+      {
+        id: '00000000-0000-0000-0000-000000000003',
+        role: 'admin',
+        name: 'SME Dept Admin',
+        email_or_username: 'admin_odisha',
+        password_hash: demoPasswordHash,
+        school_id: null,
+        class_section: null,
+        grade: null,
+        language_pref: 'en',
+        created_at: new Date().toISOString(),
+      },
+    ];
+
     SEED_DATA.forEach((tData, tIdx) => {
       const topicId = `topic-${tIdx + 1}`;
       this.topics.push({
@@ -171,7 +213,7 @@ class InMemDB {
     });
   }
 
-  query(sql: string, params: any[] = []): { rows: any[]; rowCount: number } {
+  query(sql: string, params: unknown[] = []): { rows: unknown[]; rowCount: number } {
     const cleanSql = sql.trim().replace(/\s+/g, ' ');
 
     // 1. SELECT FROM schools
@@ -181,7 +223,7 @@ class InMemDB {
 
     // 2. SELECT FROM users WHERE LOWER(email_or_username) = LOWER($1)
     if (/SELECT .* FROM users .* WHERE LOWER\(.*email_or_username.*\) = LOWER\(\$1\)/i.test(cleanSql)) {
-      const email = (params[0] || '').toLowerCase().trim();
+      const email = String(params[0] || '').toLowerCase().trim();
       const user = this.users.find((u) => u.email_or_username.toLowerCase() === email);
       if (user) {
         const school = this.schools.find((s) => s.id === user.school_id);
@@ -205,14 +247,14 @@ class InMemDB {
       const id = crypto.randomUUID();
       const newUser: UserRow = {
         id,
-        role: params[0],
-        name: params[1],
-        email_or_username: params[2],
-        password_hash: params[3],
-        school_id: params[4] || null,
-        class_section: params[5] || null,
-        grade: params[6] || null,
-        language_pref: params[7] || 'or',
+        role: String(params[0] || 'student'),
+        name: String(params[1] || ''),
+        email_or_username: String(params[2] || ''),
+        password_hash: String(params[3] || ''),
+        school_id: (params[4] as string) || null,
+        class_section: (params[5] as string) || null,
+        grade: (params[6] as number) || null,
+        language_pref: (params[7] as string) || 'or',
         created_at: new Date().toISOString(),
       };
       this.users.push(newUser);
@@ -224,11 +266,11 @@ class InMemDB {
       let filtered = [...this.topics];
       let pIdx = 0;
       if (/ct\.grade = \$/i.test(cleanSql)) {
-        const gradeVal = params[pIdx++];
+        const gradeVal = Number(params[pIdx++]);
         filtered = filtered.filter((t) => t.grade === gradeVal);
       }
       if (/ct\.subject ILIKE \$/i.test(cleanSql)) {
-        const subVal = (params[pIdx++] || '').toLowerCase();
+        const subVal = String(params[pIdx++] || '').toLowerCase();
         filtered = filtered.filter((t) => t.subject.toLowerCase().includes(subVal));
       }
 
@@ -248,7 +290,7 @@ class InMemDB {
         filtered = filtered.filter((l) => l.topic_id === tId);
       }
       if (/ct\.grade = \$/i.test(cleanSql)) {
-        const gradeVal = params[pIdx++];
+        const gradeVal = Number(params[pIdx++]);
         const matchingTopicIds = this.topics.filter((t) => t.grade === gradeVal).map((t) => t.id);
         filtered = filtered.filter((l) => matchingTopicIds.includes(l.topic_id));
       }
@@ -305,14 +347,14 @@ class InMemDB {
     if (/INSERT INTO attempts/i.test(cleanSql)) {
       const newAttempt: AttemptRow = {
         id: crypto.randomUUID(),
-        attempt_uuid: params[0],
-        student_id: params[1],
-        lesson_id: params[2],
-        answers: typeof params[3] === 'string' ? JSON.parse(params[3]) : params[3],
-        client_submitted_score: params[4] || 0,
-        server_computed_score: params[5] || 0,
-        total_questions: params[6] || 0,
-        correct_answers: params[7] || 0,
+        attempt_uuid: String(params[0] || ''),
+        student_id: String(params[1] || ''),
+        lesson_id: String(params[2] || ''),
+        answers: typeof params[3] === 'string' ? JSON.parse(params[3]) : (params[3] as AttemptAnswer[]),
+        client_submitted_score: Number(params[4]) || 0,
+        server_computed_score: Number(params[5]) || 0,
+        total_questions: Number(params[6]) || 0,
+        correct_answers: Number(params[7]) || 0,
         status: 'synced',
         submitted_at: new Date().toISOString(),
         synced_at: new Date().toISOString(),
@@ -334,8 +376,8 @@ class InMemDB {
 
     // 12. Topic attempts for progress
     if (/SELECT a\.lesson_id, MAX\(a\.server_computed_score\)/i.test(cleanSql)) {
-      const studentId = params[0];
-      const topicId = params[1];
+      const studentId = params[0] as string;
+      const topicId = params[1] as string;
       const topicLessons = this.lessons.filter((l) => l.topic_id === topicId).map((l) => l.id);
       const studentAttempts = this.attempts.filter(
         (a) => a.student_id === studentId && topicLessons.includes(a.lesson_id)
@@ -365,11 +407,11 @@ class InMemDB {
 
     // 14. INSERT / UPDATE progress
     if (/INSERT INTO progress/i.test(cleanSql)) {
-      const student_id = params[0];
-      const topic_id = params[1];
-      const mastery_level = params[2];
-      const total_points = params[3];
-      const lessons_completed = params[4];
+      const student_id = String(params[0]);
+      const topic_id = String(params[1]);
+      const mastery_level = Number(params[2]);
+      const total_points = Number(params[3]);
+      const lessons_completed = Number(params[4]);
 
       const idx = this.progress.findIndex((p) => p.student_id === student_id && p.topic_id === topic_id);
       if (idx !== -1) {
@@ -415,10 +457,10 @@ class InMemDB {
 
     // 18. INSERT INTO badges_earned
     if (/INSERT INTO badges_earned/i.test(cleanSql)) {
-      const student_id = params[0];
-      const badge_id = params[1];
-      const badge_name = params[2];
-      const badge_name_odia = params[3];
+      const student_id = String(params[0]);
+      const badge_id = String(params[1]);
+      const badge_name = String(params[2]);
+      const badge_name_odia = String(params[3]);
 
       const exists = this.badges.some((b) => b.student_id === student_id && b.badge_id === badge_id);
       if (exists) {
@@ -474,13 +516,13 @@ class InMemDB {
 
     // 23. INSERT / UPSERT INTO lesson_progress
     if (/INSERT INTO lesson_progress/i.test(cleanSql)) {
-      const student_id = params[0];
-      const lesson_id = params[1];
-      const current_level = params[2] || 1;
-      const xp = params[3] || 0;
-      const score = params[4] || 0;
-      const difficulty = params[5] || 'medium';
-      const plant_stage = params[6] || 'seed';
+      const student_id = String(params[0]);
+      const lesson_id = String(params[1]);
+      const current_level = Number(params[2]) || 1;
+      const xp = Number(params[3]) || 0;
+      const score = Number(params[4]) || 0;
+      const difficulty = (params[5] as 'easy' | 'medium' | 'hard') || 'medium';
+      const plant_stage = String(params[6] || 'seed');
       const completed = Boolean(params[7]);
 
       const idx = this.lessonProgress.findIndex((p) => p.student_id === student_id && p.lesson_id === lesson_id);

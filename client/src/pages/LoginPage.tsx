@@ -31,6 +31,7 @@ export const LoginPage: React.FC = () => {
   };
 
   const handleQuickDemoLogin = (role: 'student' | 'teacher') => {
+    setError(null);
     if (role === 'student') {
       setUsername('subhashree_7');
       setPassword('password123');

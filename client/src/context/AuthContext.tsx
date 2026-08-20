@@ -52,15 +52,73 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (email_or_username: string, password: string) => {
-    const res = await apiRequest<{ success: boolean; token: string; user: User }>('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email_or_username, password }),
-    });
+    try {
+      const res = await apiRequest<{ success: boolean; token: string; user: User }>('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email_or_username, password }),
+      });
 
-    if (res.success && res.token && res.user) {
-      setToken(res.token);
-      setUser(res.user);
-      await saveOfflineSession(res.token, res.user);
+      if (res.success && res.token && res.user) {
+        setToken(res.token);
+        setUser(res.user);
+        await saveOfflineSession(res.token, res.user);
+        return;
+      }
+    } catch (err: unknown) {
+      // Offline fallback for quick demo accounts in case of network unavailability or backend sleeping
+      const identifier = email_or_username.toLowerCase().trim();
+      const isDemoStudent = identifier === 'subhashree_7' && password === 'password123';
+      const isDemoTeacher = identifier === 'teacher_pradeep' && password === 'password123';
+      const isDemoAdmin = identifier === 'admin_odisha' && password === 'password123';
+
+      if (isDemoStudent || isDemoTeacher || isDemoAdmin) {
+        const demoUser: User = isDemoStudent
+          ? {
+              id: '00000000-0000-0000-0000-000000000001',
+              role: 'student',
+              name: 'Subhashree Dash',
+              email_or_username: 'subhashree_7',
+              school_id: 'sch-1',
+              school_name: 'Govt. High School, Khordha',
+              class_section: '7-A',
+              grade: 7,
+              language_pref: 'or',
+              created_at: new Date().toISOString(),
+            }
+          : isDemoTeacher
+          ? {
+              id: '00000000-0000-0000-0000-000000000002',
+              role: 'teacher',
+              name: 'Pradeep Kumar Nayak',
+              email_or_username: 'teacher_pradeep',
+              school_id: 'sch-1',
+              school_name: 'Govt. High School, Khordha',
+              class_section: 'STEM-Facilitator',
+              grade: null,
+              language_pref: 'or',
+              created_at: new Date().toISOString(),
+            }
+          : {
+              id: '00000000-0000-0000-0000-000000000003',
+              role: 'admin',
+              name: 'SME Dept Admin',
+              email_or_username: 'admin_odisha',
+              school_id: null,
+              school_name: null,
+              class_section: null,
+              grade: null,
+              language_pref: 'en',
+              created_at: new Date().toISOString(),
+            };
+
+        const demoToken = `offline_demo_token_${Date.now()}`;
+        setToken(demoToken);
+        setUser(demoUser);
+        await saveOfflineSession(demoToken, demoUser);
+        return;
+      }
+
+      throw err;
     }
   };
 
