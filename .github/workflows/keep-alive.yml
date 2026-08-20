@@ -1,0 +1,39 @@
+name: Keep Render Server Alive & Health Check
+
+on:
+  schedule:
+    # Runs every 14 minutes (Render spins down free services after 15 min of inactivity)
+    - cron: '*/14 * * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  health-check:
+    name: Ping Health Endpoint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render Backend
+        env:
+          RENDER_API_URL: "https://khelo-vidya.onrender.com/api/health"
+        run: |
+          URL="$RENDER_API_URL"
+          echo "Pinging health endpoint at $URL..."
+          
+          # Send GET request with a 30s timeout and output status code
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -m 30 "$URL" || echo "000")
+          
+          echo "Response HTTP Status: $HTTP_STATUS"
+          
+          if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 400 ]; then
+            echo "✅ Server is alive and healthy! (Status: $HTTP_STATUS)"
+          else
+            echo "⚠️ Warning: Received HTTP $HTTP_STATUS or timeout. Retrying root URL fallback..."
+            FALLBACK_URL="${URL%/api/health}"
+            FALLBACK_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -m 30 "$FALLBACK_URL" || echo "000")
+            echo "Fallback Response Status: $FALLBACK_STATUS"
+            if [ "$FALLBACK_STATUS" -ge 200 ] && [ "$FALLBACK_STATUS" -lt 400 ]; then
+              echo "✅ Root endpoint is active! (Status: $FALLBACK_STATUS)"
+            else
+              echo "❌ Server health check failed with status $FALLBACK_STATUS"
+              exit 1
+            fi
+          fi

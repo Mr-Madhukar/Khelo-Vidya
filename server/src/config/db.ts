@@ -4,9 +4,13 @@ import { inMemDB } from './mockDb.js';
 
 const { Pool } = pg;
 
+const isRemoteDb = ENV.DATABASE_URL.includes('neon.tech') || 
+                     ENV.DATABASE_URL.includes('sslmode=require') || 
+                     ENV.NODE_ENV === 'production';
+
 export const pool = new Pool({
   connectionString: ENV.DATABASE_URL,
-  ssl: ENV.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  ssl: isRemoteDb ? { rejectUnauthorized: false } : false,
 });
 
 let postgresAvailable = true;
@@ -18,9 +22,9 @@ pool.on('error', (err) => {
   }
 });
 
-export const query = async <T extends QueryResultRow = any>(
+export const query = async <T extends QueryResultRow = QueryResultRow>(
   text: string,
-  params?: any[]
+  params?: unknown[]
 ): Promise<pg.QueryResult<T>> => {
   const start = Date.now();
 
@@ -32,14 +36,15 @@ export const query = async <T extends QueryResultRow = any>(
         console.log('[DB Query - PG]', { text: text.slice(0, 80), duration: `${duration}ms`, rows: res.rowCount });
       }
       return res;
-    } catch (err: any) {
-      if (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND' || err.message?.includes('ECONNREFUSED')) {
+    } catch (err: unknown) {
+      const dbErr = err as { code?: string; message?: string };
+      if (dbErr.code === 'ECONNREFUSED' || dbErr.code === 'ENOTFOUND' || dbErr.message?.includes('ECONNREFUSED')) {
         if (postgresAvailable) {
           console.warn('⚠️ [PostgreSQL daemon offline]. Falling back seamlessly to In-Memory Educational Store.');
           postgresAvailable = false;
         }
       } else {
-        console.error('[DB Query Error]', { text, error: err.message });
+        console.error('[DB Query Error]', { text, error: dbErr.message });
         throw err;
       }
     }
