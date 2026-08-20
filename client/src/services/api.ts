@@ -1,18 +1,18 @@
 import { getOfflineSession } from '../db/dexie.ts';
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 export class ApiError extends Error {
   status: number;
-  data: any;
-  constructor(message: string, status: number, data?: any) {
+  data: unknown;
+  constructor(message: string, status: number, data?: unknown) {
     super(message);
     this.status = status;
     this.data = data;
   }
 }
 
-export async function apiRequest<T = any>(
+export async function apiRequest<T = unknown>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
@@ -40,7 +40,7 @@ export async function apiRequest<T = any>(
     }
 
     return data as T;
-  } catch (err: any) {
+  } catch (err: unknown) {
     if (err instanceof ApiError) {
       throw err;
     }
