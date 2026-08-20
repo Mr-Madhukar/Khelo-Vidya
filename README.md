@@ -3,7 +3,7 @@
 > *Developed for Smart India Hackathon (SIH 2025) · Problem Statement ID: **SIH25048** (Govt. of Odisha)*
 
 [![Deployment Backend](https://img.shields.io/badge/Backend%20Live-Render-46E3B7?logo=render&logoColor=white)](https://khelo-vidya.onrender.com)
-[![Deployment Frontend](https://img.shields.io/badge/Frontend%20Live-Vercel-000000?logo=vercel&logoColor=white)](https://khelo-vidya.vercel.app)
+[![Deployment Frontend](https://img.shields.io/badge/Frontend%20Live-khelovidya.mrmadhukar.in-000000?logo=vercel&logoColor=white)](https://khelovidya.mrmadhukar.in)
 [![API Health](https://img.shields.io/badge/API%20Health-Passing-brightgreen)](https://khelo-vidya.onrender.com/api/health)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.0-61DAFB?logo=react&logoColor=black)](https://react.dev/)
@@ -14,9 +14,9 @@
 
 ## 🌐 Live Deployments
 
-| Component | Provider | Live URL | Description |
+| Component | Provider / Domain | Live URL | Description |
 | :--- | :--- | :--- | :--- |
-| **Frontend Web App (PWA)** | Vercel | [khelo-vidya.vercel.app](https://khelo-vidya.vercel.app) | Responsive React PWA with 100% offline support |
+| **Frontend Web App (PWA)** | Vercel (Custom Domain) | [khelovidya.mrmadhukar.in](https://khelovidya.mrmadhukar.in) | Responsive React PWA with 100% offline support |
 | **Backend REST API** | Render | [khelo-vidya.onrender.com](https://khelo-vidya.onrender.com) | Express + TypeScript API with PostgreSQL & in-memory fallback |
 | **API Health Status** | Render | [khelo-vidya.onrender.com/api/health](https://khelo-vidya.onrender.com/api/health) | Live service status and database connectivity check |
 
