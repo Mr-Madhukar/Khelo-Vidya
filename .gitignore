@@ -1,15 +1,47 @@
+# ========== Dependencies ==========
 node_modules/
+
+# ========== Build outputs ==========
 dist/
 build/
+
+# ========== Environment variables ==========
 .env
 .env.local
 .env.*.local
+
+# ========== Logs ==========
 *.log
 npm-debug.log*
 pnpm-debug.log*
 yarn-debug.log*
+
+# ========== OS files ==========
 .DS_Store
-coverage/
+Thumbs.db
+Desktop.ini
+
+# ========== IDE / Editor ==========
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ========== Cache & temp ==========
 .turbo/
 .cache/
 .system_generated/
+.eslintcache
+*.tsbuildinfo
+
+# ========== Test coverage ==========
+coverage/
+
+# ========== Markdown docs (except README) ==========
+*.md
+!README.md
+
+# ========== Misc ==========
+antigravityrules
+favicon_io/
