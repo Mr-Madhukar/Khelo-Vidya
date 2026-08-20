@@ -1019,5 +1019,305 @@ export const SEED_DATA: SeedTopic[] = [
         ]
       }
     ]
+  },
+
+  // 9. Grade 6 - Physics: Motion and Measurement
+  {
+    subject: 'STEM - Physics',
+    grade: 6,
+    topic_name: 'Motion and Measurement of Distances',
+    topic_name_odia: 'ଗତି ଏବଂ ଦୂରତାର ମାପ',
+    order_index: 9,
+    lessons: [
+      {
+        title: 'Standard Units and Types of Motion',
+        title_odia: 'ମାପର ମାନକ ଏକକ ଏବଂ ଗତିର ପ୍ରକାର',
+        content_version: 1,
+        language: 'or',
+        content_body: {
+          summary: 'Standard units of measurement like the meter provide uniform measurement across the world.',
+          summaryOdia: 'ମିଟର ଭଳି ପ୍ରାମାଣିକ ଏକକ ସମଗ୍ର ବିଶ୍ୱରେ ସଠିକ୍ ଦୂରତା ମାପିବାରେ ସାହାଯ୍ୟ କରେ।',
+          sections: [
+            {
+              title: 'Types of Motion',
+              titleOdia: 'ଗତିର ବିଭିନ୍ନ ପ୍ରକାର',
+              content: 'Rectilinear (straight line), Circular (rotating in circles), Periodic (repeats after fixed time interval).',
+              contentOdia: 'ସରଳରୈଖିକ ଗତି, ବୃତ୍ତାକାର ଗତି, ଏବଂ ପର୍ଯ୍ୟାୟୀ ଗତି (ଯଥା: ଦୋଳନ)।'
+            }
+          ]
+        },
+        media_refs: ['/media/motion_scale.png'],
+        questions: [
+          {
+            question_text: 'What is the SI unit of length?',
+            question_text_odia: 'ଦୈର୍ଘ୍ୟର SI ଏକକ କ’ଣ?',
+            options: ['Centimeter', 'Meter', 'Kilometer', 'Foot'],
+            options_odia: ['ସେଣ୍ଟିମିଟର', 'ମିଟର', 'କିଲୋମିଟର', 'ଫୁଟ୍'],
+            correct_option: 1,
+            difficulty_tag: 'easy',
+            points: 10
+          },
+          {
+            question_text: 'The motion of a pendulum in a clock is an example of:',
+            question_text_odia: 'ଘଣ୍ଟାର ଦୋଳକ (ପେଣ୍ଡୁଲମ୍) ର ଗତି କେଉଁ ପ୍ରକାର ଗତି?',
+            options: ['Periodic motion', 'Rectilinear motion', 'Random motion', 'Circular motion only'],
+            options_odia: ['ପର୍ଯ୍ୟାୟୀ ଗତି (Periodic)', 'ସରଳରୈଖିକ ଗତି', 'ଅନିୟମିତ ଗତି', 'ବୃତ୍ତାକାର ଗତି'],
+            correct_option: 0,
+            difficulty_tag: 'easy',
+            points: 10
+          }
+        ]
+      }
+    ]
+  },
+
+  // 10. Grade 6 - Biology: Components of Food
+  {
+    subject: 'STEM - Biology',
+    grade: 6,
+    topic_name: 'Components of Food & Balanced Diet',
+    topic_name_odia: 'ଖାଦ୍ୟର ଉପାଦାନ ଓ ସନ୍ତୁଳିତ ଆହାର',
+    order_index: 10,
+    lessons: [
+      {
+        title: 'Nutrients: Carbohydrates, Proteins & Vitamins',
+        title_odia: 'ପୋଷକ ତତ୍ତ୍ୱ: ଶ୍ୱେତସାର, ପୁଷ୍ଟିସାର ଏବଂ ଜୀବସାର',
+        content_version: 1,
+        language: 'or',
+        content_body: {
+          summary: 'A balanced diet provides all essential nutrients in proper amounts along with water and roughage.',
+          summaryOdia: 'ସନ୍ତୁଳିତ ଆହାର ଶରୀରକୁ ସମସ୍ତ ଆବଶ୍ୟକୀୟ ପୋଷକ ତତ୍ତ୍ୱ ଯୋଗାଇ ସୁସ୍ଥ ରଖେ।',
+          sections: [
+            {
+              title: 'Major Nutrients and Functions',
+              titleOdia: 'ପୋଷକ ତତ୍ତ୍ୱ ଏବଂ ସେମାନଙ୍କ କାର୍ଯ୍ୟ',
+              content: 'Carbohydrates give energy, Proteins build muscles and repair cells, Vitamins protect against diseases.',
+              contentOdia: 'ଶ୍ୱେତସାର ଶକ୍ତି ଦିଏ, ପୁଷ୍ଟିସାର ଶରୀର ଗଠନ କରେ, ଏବଂ ଜୀବସାର ରୋଗ ପ୍ରତିରୋଧ କରେ।'
+            }
+          ]
+        },
+        media_refs: ['/media/food_plate.png'],
+        questions: [
+          {
+            question_text: 'Which nutrient is primarily responsible for bodybuilding and tissue repair?',
+            question_text_odia: 'ଶରୀର ବୃଦ୍ଧି ଏବଂ କୋଷ ମରାମତି ପାଇଁ କେଉଁ ପୋଷକ ମୁଖ୍ୟ ଭୂମିକା ନିଏ?',
+            options: ['Carbohydrates', 'Proteins', 'Fats', 'Roughage'],
+            options_odia: ['ଶ୍ୱେତସାର', 'ପୁଷ୍ଟିସାର (Protein)', 'ସ୍ନେହସାର', 'ତନ୍ତୁଜାତୀୟ ଖାଦ୍ୟ'],
+            correct_option: 1,
+            difficulty_tag: 'easy',
+            points: 10
+          },
+          {
+            question_text: 'Night blindness is caused by the deficiency of which vitamin?',
+            question_text_odia: 'ଅନ୍ଧାରକଣା ରୋଗ କେଉଁ ଜୀବସାର (ଭିଟାମିନ୍) ର ଅଭାବରୁ ହୁଏ?',
+            options: ['Vitamin A', 'Vitamin B', 'Vitamin C', 'Vitamin D'],
+            options_odia: ['ଭିଟାମିନ୍ A', 'ଭିଟାମିନ୍ B', 'ଭିଟାମିନ୍ C', 'ଭିଟାମିନ୍ D'],
+            correct_option: 0,
+            difficulty_tag: 'easy',
+            points: 10
+          }
+        ]
+      }
+    ]
+  },
+
+  // 11. Grade 8 - Physics: Force and Pressure
+  {
+    subject: 'STEM - Physics',
+    grade: 8,
+    topic_name: 'Force, Pressure & Atmospheric Thrust',
+    topic_name_odia: 'ବଳ, ଚାପ ଏବଂ ବାୟୁମଣ୍ଡଳୀୟ ଚାପ',
+    order_index: 11,
+    lessons: [
+      {
+        title: 'Pressure: Force Per Unit Area',
+        title_odia: 'ଚାପର ଧାରଣା: ଏକକ କ୍ଷେତ୍ରଫଳ ପ୍ରତି ବଳ',
+        content_version: 1,
+        language: 'or',
+        content_body: {
+          summary: 'Pressure equals Force divided by Area. Smaller contact area creates much greater pressure.',
+          summaryOdia: 'ଚାପ = ବଳ / କ୍ଷେତ୍ରଫଳ। କ୍ଷେତ୍ରଫଳ କମ୍ ହେଲେ ଚାପ ଅଧିକ ହୁଏ (ଯଥା: ଛୁଞ୍ଚିର ତୀକ୍ଷ୍ଣ ମୁନ)।',
+          sections: [
+            {
+              title: 'Formula and Units',
+              titleOdia: 'ସୂତ୍ର ଓ ଏକକ',
+              content: 'Pressure (P) = Force (F) / Area (A). The SI unit of pressure is Pascal (Pa) or N/m².',
+              contentOdia: 'ଚାପ (P) = ବଳ (F) / କ୍ଷେତ୍ରଫଳ (A)। ଏହାର SI ଏକକ ହେଉଛି ପାସ୍କାଲ୍ (Pa)।'
+            }
+          ]
+        },
+        media_refs: ['/media/pressure_nail.png'],
+        questions: [
+          {
+            question_text: 'What is the SI unit of pressure?',
+            question_text_odia: 'ଚାପର SI ଏକକ କ’ଣ?',
+            options: ['Newton', 'Pascal (N/m²)', 'Joule', 'Watt'],
+            options_odia: ['ନ୍ୟୁଟନ୍', 'ପାସ୍କାଲ୍ (N/m²)', 'ଜୁଲ୍', 'ୱାଟ୍'],
+            correct_option: 1,
+            difficulty_tag: 'easy',
+            points: 10
+          },
+          {
+            question_text: 'Why do camels walk easily on desert sand without sinking?',
+            question_text_odia: 'ଓଟ କାହିଁକି ବାଲିରେ ସହଜରେ ଚାଲିପାରେ?',
+            options: ['Broad flat feet reduce pressure on sand', 'Heavy body', 'Fast running', 'Sharp claws'],
+            options_odia: ['ଚଉଡ଼ା ପାଦ ବାଲି ଉପରେ ଚାପ କମାଇଦିଏ', 'ଭାରୀ ଶରୀର', 'ଦ୍ରୁତ ଗତି', 'ତୀକ୍ଷ୍ଣ ନଖ'],
+            correct_option: 0,
+            difficulty_tag: 'medium',
+            points: 15
+          }
+        ]
+      }
+    ]
+  },
+
+  // 12. Grade 8 - Chemistry: Metals and Non-Metals
+  {
+    subject: 'STEM - Chemistry',
+    grade: 8,
+    topic_name: 'Metals and Non-Metals: Chemical Behavior',
+    topic_name_odia: 'ଧାତୁ ଏବଂ ଅଧାତୁ: ରାସାୟନିକ ଧର୍ମ',
+    order_index: 12,
+    lessons: [
+      {
+        title: 'Malleability, Ductility & Conductivity',
+        title_odia: 'ନମନୀୟତା, ତନ୍ୟତା ଏବଂ ବିଦ୍ୟୁତ୍ ପରିବାହିତା',
+        content_version: 1,
+        language: 'or',
+        content_body: {
+          summary: 'Metals are lustrous, malleable, ductile, and good conductors of heat and electricity.',
+          summaryOdia: 'ଧାତୁଗୁଡ଼ିକ ଚିକ୍କଣ, ନମନୀୟ, ତାରରେ ପରିଣତ ହୋଇପାରୁଥିବା ଏବଂ ଉତ୍ତମ ବିଦ୍ୟୁତ୍ ପରିବାହୀ।',
+          sections: [
+            {
+              title: 'Key Metal Properties',
+              titleOdia: 'ଧାତୁର ବିଶେଷ ଗୁଣ',
+              content: 'Malleability allows metals to be beaten into thin sheets (aluminum foil). Ductility allows drawing into thin wires (copper wires).',
+              contentOdia: 'ନମନୀୟତା ଯୋଗୁଁ ଧାତୁକୁ ପତଳା ପାତରେ ପରିଣତ କରାଯାଏ ଏବଂ ତନ୍ୟତା ଯୋଗୁଁ ତାର ତିଆରି କରାଯାଏ।'
+            }
+          ]
+        },
+        media_refs: ['/media/metals_conductivity.png'],
+        questions: [
+          {
+            question_text: 'Which non-metal is a good conductor of electricity?',
+            question_text_odia: 'ନିମ୍ନଲିଖିତ ମଧ୍ୟରୁ କେଉଁ ଅଧାତୁ ବିଦ୍ୟୁତ୍ ସୁପରିବାହୀ?',
+            options: ['Sulfur', 'Graphite (Carbon)', 'Phosphorus', 'Iodine'],
+            options_odia: ['ଗନ୍ଧକ (ସଲଫର୍)', 'ଗ୍ରାଫାଇଟ୍ (କାର୍ବନ୍)', 'ଫସଫରସ୍', 'ଆୟୋଡିନ୍'],
+            correct_option: 1,
+            difficulty_tag: 'easy',
+            points: 10
+          },
+          {
+            question_text: 'Which metal exists in liquid state at room temperature?',
+            question_text_odia: 'କେଉଁ ଧାତୁ ସାଧାରଣ ତାପମାତ୍ରାରେ ତରଳ ଅବସ୍ଥାରେ ଥାଏ?',
+            options: ['Sodium', 'Mercury (Parada)', 'Iron', 'Magnesium'],
+            options_odia: ['ସୋଡ଼ିୟମ୍', 'ପାରଦ (Mercury)', 'ଲୁହା', 'ମ୍ୟାଗ୍ନେସିୟମ୍'],
+            correct_option: 1,
+            difficulty_tag: 'easy',
+            points: 10
+          }
+        ]
+      }
+    ]
+  },
+
+  // 13. Grade 9 - Physics: Gravitation
+  {
+    subject: 'STEM - Physics',
+    grade: 9,
+    topic_name: 'Gravitation & Archimedes Principle',
+    topic_name_odia: 'ମାଧ୍ୟାକର୍ଷଣ ଏବଂ ଆର୍କିମିଡ଼ିସ୍ ନିୟମ',
+    order_index: 13,
+    lessons: [
+      {
+        title: 'Universal Law of Gravitation & Free Fall',
+        title_odia: 'ମାଧ୍ୟାକର୍ଷଣର ସାର୍ବଜନୀନ ନିୟମ ଏବଂ ଅବାଧ ପତନ',
+        content_version: 1,
+        language: 'or',
+        content_body: {
+          summary: 'Every object in the universe attracts every other object with a force proportional to the product of their masses and inversely proportional to the square of distance.',
+          summaryOdia: 'ବିଶ୍ୱର ପ୍ରତ୍ୟେକ ବସ୍ତୁ ଅନ୍ୟ ବସ୍ତୁକୁ ଏକ ବଳ ଦ୍ୱାରା ଆକର୍ଷଣ କରେ ଯାହା ସେମାନଙ୍କ ବସ୍ତୁତ୍ୱର ଗୁଣଫଳ ସହ ସମାନୁପାତୀ।',
+          sections: [
+            {
+              title: 'Formula for Gravitational Force',
+              titleOdia: 'ମାଧ୍ୟାକର୍ଷଣ ବଳର ସୂତ୍ର',
+              content: 'F = G × (m1 × m2) / r², where G = 6.674 × 10⁻¹¹ N m²/kg².',
+              contentOdia: 'F = G × (m1 × m2) / r², ଏଠାରେ G ହେଉଛି ସାର୍ବଜନୀନ ମାଧ୍ୟାକର୍ଷଣ ସ୍ଥିରାଙ୍କ।'
+            }
+          ]
+        },
+        media_refs: ['/media/gravitation_earth.png'],
+        questions: [
+          {
+            question_text: 'What is the acceleration due to gravity (g) on the surface of the Earth?',
+            question_text_odia: 'ପୃଥିବୀ ପୃଷ୍ଠରେ ମାଧ୍ୟାକର୍ଷଣଜନିତ ତ୍ୱରଣ (g) ର ମୂଲ୍ୟ କେତେ?',
+            options: ['9.8 m/s²', '8.9 m/s²', '98 m/s²', '0 m/s²'],
+            options_odia: ['୯.୮ m/s²', '୮.୯ m/s²', '୯୮ m/s²', '୦ m/s²'],
+            correct_option: 0,
+            difficulty_tag: 'easy',
+            points: 10
+          },
+          {
+            question_text: 'The weight of an object on the Moon is what fraction of its weight on Earth?',
+            question_text_odia: 'ଚନ୍ଦ୍ର ପୃଷ୍ଠରେ ବସ୍ତୁର ଓଜନ ପୃଥିବୀ ତୁଳନାରେ କେତେ ଭାଗ?',
+            options: ['1/2', '1/6', '1/4', 'Same'],
+            options_odia: ['୧/୨', '୧/୬ ଭାଗ', '୧/୪', 'ସମାନ'],
+            correct_option: 1,
+            difficulty_tag: 'medium',
+            points: 15
+          }
+        ]
+      }
+    ]
+  },
+
+  // 14. Grade 9 - Mathematics: Coordinate Geometry
+  {
+    subject: 'STEM - Mathematics',
+    grade: 9,
+    topic_name: 'Coordinate Geometry & Cartesian Plane',
+    topic_name_odia: 'ସ୍ଥାନାଙ୍କ ଜ୍ୟାମିତି ଏବଂ କାର୍ତ୍ତେସୀୟ ସମତଳ',
+    order_index: 14,
+    lessons: [
+      {
+        title: 'Cartesian Coordinate System: X and Y Axes',
+        title_odia: 'ସ୍ଥାନାଙ୍କ ଜ୍ୟାମିତି: X ଏବଂ Y ଅକ୍ଷର ଧାରଣା',
+        content_version: 1,
+        language: 'or',
+        content_body: {
+          summary: 'The Cartesian plane uses two perpendicular axes (X and Y) intersecting at origin (0,0) to locate any point uniquely in 2D space.',
+          summaryOdia: 'ଦୁଇଟି ପରସ୍ପର ଲମ୍ବ ଅକ୍ଷ (X ଏବଂ Y) ସାହାଯ୍ୟରେ ସମତଳରେ ଯେକୌଣସି ବିନ୍ଦୁର ସ୍ଥିତି (x, y) ନିର୍ଦ୍ଧାରଣ କରାଯାଏ।',
+          sections: [
+            {
+              title: 'Quadrants and Coordinates',
+              titleOdia: 'ଚତୁର୍ଥାଂଶ ଏବଂ ସ୍ଥାନାଙ୍କ',
+              content: 'Quadrant I (+,+), Quadrant II (-,+), Quadrant III (-,-), Quadrant IV (+,-). The x-coordinate is abscissa, and y-coordinate is ordinate.',
+              contentOdia: 'ପ୍ରଥମ ଚତୁର୍ଥାଂଶ (+,+), ଦ୍ୱିତୀୟ (-,+), ତୃତୀୟ (-,-), ଚତୁର୍ଥ (+,-)।'
+            }
+          ]
+        },
+        media_refs: ['/media/cartesian_grid.png'],
+        questions: [
+          {
+            question_text: 'What are the coordinates of the origin where X and Y axes intersect?',
+            question_text_odia: 'X ଏବଂ Y ଅକ୍ଷ ଛେଦ କରୁଥିବା ମୂଳବିନ୍ଦୁ (Origin) ର ସ୍ଥାନାଙ୍କ କେତେ?',
+            options: ['(1, 1)', '(0, 0)', '(0, 1)', '(1, 0)'],
+            options_odia: ['(୧, ୧)', '(୦, ୦)', '(୦, ୧)', '(୧, ୦)'],
+            correct_option: 1,
+            difficulty_tag: 'easy',
+            points: 10
+          },
+          {
+            question_text: 'In which quadrant does the point (-4, 5) lie?',
+            question_text_odia: 'ବିନ୍ଦୁ (-୪, ୫) କେଉଁ ଚତୁର୍ଥାଂଶରେ ଅବସ୍ଥିତ?',
+            options: ['Quadrant I', 'Quadrant II', 'Quadrant III', 'Quadrant IV'],
+            options_odia: ['ପ୍ରଥମ ଚତୁର୍ଥାଂଶ', 'ଦ୍ୱିତୀୟ ଚତୁର୍ଥାଂଶ', 'ତୃତୀୟ ଚତୁର୍ଥାଂଶ', 'ଚତୁର୍ଥ ଚତୁର୍ଥାଂଶ'],
+            correct_option: 1,
+            difficulty_tag: 'medium',
+            points: 15
+          }
+        ]
+      }
+    ]
   }
 ];

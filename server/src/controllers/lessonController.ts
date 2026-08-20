@@ -19,15 +19,16 @@ export async function getTopics(req: Request, res: Response): Promise<void> {
       LEFT JOIN lessons l ON l.topic_id = ct.id
       WHERE 1=1
     `;
-    const params: any[] = [];
+    const params: unknown[] = [];
 
-    if (grade) {
+    if (grade && grade !== 'all') {
       params.push(parseInt(grade as string, 10));
       sql += ` AND ct.grade = $${params.length}`;
     }
 
-    if (subject) {
-      params.push(subject as string);
+    if (subject && subject !== 'all') {
+      const cleanSub = (subject as string).replace('maths', 'math').replace('mathematics', 'math');
+      params.push(`%${cleanSub}%`);
       sql += ` AND ct.subject ILIKE $${params.length}`;
     }
 
@@ -35,8 +36,9 @@ export async function getTopics(req: Request, res: Response): Promise<void> {
 
     const result = await query(sql, params);
     res.json({ success: true, topics: result.rows });
-  } catch (err: any) {
-    console.error('[getTopics Error]', err.message);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[getTopics Error]', message);
     res.status(500).json({ success: false, error: 'Failed to fetch topics' });
   }
 }
@@ -67,20 +69,21 @@ export async function getLessons(req: Request, res: Response): Promise<void> {
       LEFT JOIN quiz_questions qq ON qq.lesson_id = l.id
       WHERE 1=1
     `;
-    const params: any[] = [];
+    const params: unknown[] = [];
 
     if (topic_id) {
       params.push(topic_id as string);
       sql += ` AND l.topic_id = $${params.length}`;
     }
 
-    if (grade) {
+    if (grade && grade !== 'all') {
       params.push(parseInt(grade as string, 10));
       sql += ` AND ct.grade = $${params.length}`;
     }
 
-    if (subject) {
-      params.push(subject as string);
+    if (subject && subject !== 'all') {
+      const cleanSub = (subject as string).replace('maths', 'math').replace('mathematics', 'math');
+      params.push(`%${cleanSub}%`);
       sql += ` AND ct.subject ILIKE $${params.length}`;
     }
 
@@ -88,8 +91,9 @@ export async function getLessons(req: Request, res: Response): Promise<void> {
 
     const result = await query(sql, params);
     res.json({ success: true, lessons: result.rows });
-  } catch (err: any) {
-    console.error('[getLessons Error]', err.message);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[getLessons Error]', message);
     res.status(500).json({ success: false, error: 'Failed to fetch lessons' });
   }
 }
@@ -147,8 +151,9 @@ export async function getLessonById(req: Request, res: Response): Promise<void> 
     lesson.questions = questionsResult.rows;
 
     res.json({ success: true, lesson });
-  } catch (err: any) {
-    console.error('[getLessonById Error]', err.message);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[getLessonById Error]', message);
     res.status(500).json({ success: false, error: 'Failed to fetch lesson details' });
   }
 }

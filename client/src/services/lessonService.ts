@@ -9,20 +9,33 @@ import {
   StudentProgressSummary,
   QueuedAttempt,
   CachedBadge,
+  ClassSummaryResponse,
 } from '../types/index.ts';
 
-export async function fetchTopics(grade?: number, subject?: string): Promise<ContentTopic[]> {
+export async function fetchTopics(grade?: number | 'all', subject?: string): Promise<ContentTopic[]> {
   try {
     const params = new URLSearchParams();
-    if (grade) params.append('grade', grade.toString());
-    if (subject) params.append('subject', subject);
+    if (grade && grade !== 'all') params.append('grade', grade.toString());
+    if (subject && subject !== 'all') {
+      const cleanSub = subject.toLowerCase().replace('maths', 'math').replace('mathematics', 'math');
+      params.append('subject', cleanSub);
+    }
 
     const queryStr = params.toString() ? `?${params.toString()}` : '';
     const res = await apiRequest<{ success: boolean; topics: ContentTopic[] }>(`/topics${queryStr}`);
     return res.topics || [];
   } catch (_err) {
     console.warn('[lessonService] Offline: reading topics from local Dexie cache...');
-    const cached = await db.lessons_cache.toArray();
+    let cached = await db.lessons_cache.toArray();
+
+    if (grade && grade !== 'all') {
+      cached = cached.filter((l) => l.grade === Number(grade));
+    }
+    if (subject && subject !== 'all') {
+      const cleanSub = subject.toLowerCase().replace('maths', 'math').replace('mathematics', 'math');
+      cached = cached.filter((l) => l.subject && l.subject.toLowerCase().includes(cleanSub));
+    }
+
     const topicMap = new Map<string, ContentTopic>();
 
     cached.forEach((l) => {
@@ -48,14 +61,17 @@ export async function fetchTopics(grade?: number, subject?: string): Promise<Con
 
 export async function fetchLessons(filter?: {
   topic_id?: string;
-  grade?: number;
+  grade?: number | 'all';
   subject?: string;
 }): Promise<LessonSummary[]> {
   try {
     const params = new URLSearchParams();
     if (filter?.topic_id) params.append('topic_id', filter.topic_id);
-    if (filter?.grade) params.append('grade', filter.grade.toString());
-    if (filter?.subject) params.append('subject', filter.subject);
+    if (filter?.grade && filter.grade !== 'all') params.append('grade', filter.grade.toString());
+    if (filter?.subject && filter.subject !== 'all') {
+      const cleanSub = filter.subject.toLowerCase().replace('maths', 'math').replace('mathematics', 'math');
+      params.append('subject', cleanSub);
+    }
 
     const queryStr = params.toString() ? `?${params.toString()}` : '';
     const res = await apiRequest<{ success: boolean; lessons: LessonSummary[] }>(`/lessons${queryStr}`);
@@ -91,8 +107,12 @@ export async function fetchLessons(filter?: {
     if (filter?.topic_id) {
       cached = cached.filter((l) => l.topicId === filter.topic_id);
     }
-    if (filter?.grade) {
-      cached = cached.filter((l) => l.grade === filter.grade);
+    if (filter?.grade && filter.grade !== 'all') {
+      cached = cached.filter((l) => l.grade === Number(filter.grade));
+    }
+    if (filter?.subject && filter.subject !== 'all') {
+      const cleanSub = filter.subject.toLowerCase().replace('maths', 'math').replace('mathematics', 'math');
+      cached = cached.filter((l) => l.subject && l.subject.toLowerCase().includes(cleanSub));
     }
 
     return cached.map((l) => ({
@@ -304,6 +324,175 @@ export async function fetchStudentProgress(): Promise<StudentProgressSummary> {
         badge_name_odia: b.badgeNameOdia,
         earned_at: b.earnedAt,
       })),
+    };
+  }
+}
+
+export async function fetchClassSummary(): Promise<ClassSummaryResponse> {
+  try {
+    const res = await apiRequest<ClassSummaryResponse>('/progress/class-summary');
+    return res;
+  } catch (_err) {
+    console.warn('[lessonService] Offline: returning simulated class summary...');
+    return {
+      success: true,
+      classStats: {
+        totalStudents: 6,
+        totalAttempts: 38,
+        classAvgScore: 78,
+        weakTopicsCount: 2,
+      },
+      students: [
+        {
+          id: '00000000-0000-0000-0000-000000000001',
+          name: 'Subhashree Dash',
+          email_or_username: 'subhashree_7',
+          school_id: 'sch-1',
+          class_section: '7-A',
+          grade: 7,
+          language_pref: 'or',
+          created_at: new Date().toISOString(),
+          total_points: 110,
+          lessons_completed: 4,
+          mastery_percent: 92,
+          quizzes_taken: 5,
+          weak_topics: [],
+          last_activity_at: new Date().toISOString(),
+        },
+        {
+          id: '00000000-0000-0000-0000-000000000004',
+          name: 'Debasish Mohanty',
+          email_or_username: 'debasish_7a',
+          school_id: 'sch-1',
+          class_section: '7-A',
+          grade: 7,
+          language_pref: 'or',
+          created_at: new Date().toISOString(),
+          total_points: 65,
+          lessons_completed: 3,
+          mastery_percent: 65,
+          quizzes_taken: 4,
+          weak_topics: ['Acids, Bases & Indicators'],
+          last_activity_at: new Date().toISOString(),
+        },
+        {
+          id: '00000000-0000-0000-0000-000000000005',
+          name: 'Priyanka Nayak',
+          email_or_username: 'priyanka_7a',
+          school_id: 'sch-1',
+          class_section: '7-A',
+          grade: 7,
+          language_pref: 'or',
+          created_at: new Date().toISOString(),
+          total_points: 95,
+          lessons_completed: 4,
+          mastery_percent: 88,
+          quizzes_taken: 4,
+          weak_topics: [],
+          last_activity_at: new Date().toISOString(),
+        },
+        {
+          id: '00000000-0000-0000-0000-000000000006',
+          name: 'Rajesh Kumar Sahoo',
+          email_or_username: 'rajesh_7b',
+          school_id: 'sch-1',
+          class_section: '7-B',
+          grade: 7,
+          language_pref: 'or',
+          created_at: new Date().toISOString(),
+          total_points: 40,
+          lessons_completed: 2,
+          mastery_percent: 48,
+          quizzes_taken: 3,
+          weak_topics: ['Fractions, Decimals & Ratios'],
+          last_activity_at: new Date().toISOString(),
+        },
+        {
+          id: '00000000-0000-0000-0000-000000000007',
+          name: 'Lipika Sethi',
+          email_or_username: 'lipika_7b',
+          school_id: 'sch-1',
+          class_section: '7-B',
+          grade: 7,
+          language_pref: 'or',
+          created_at: new Date().toISOString(),
+          total_points: 75,
+          lessons_completed: 3,
+          mastery_percent: 78,
+          quizzes_taken: 3,
+          weak_topics: [],
+          last_activity_at: new Date().toISOString(),
+        },
+        {
+          id: '00000000-0000-0000-0000-000000000008',
+          name: 'Manas Ranjan Pradhan',
+          email_or_username: 'manas_7a',
+          school_id: 'sch-1',
+          class_section: '7-A',
+          grade: 7,
+          language_pref: 'or',
+          created_at: new Date().toISOString(),
+          total_points: 50,
+          lessons_completed: 2,
+          mastery_percent: 55,
+          quizzes_taken: 3,
+          weak_topics: ['Acids, Bases & Indicators'],
+          last_activity_at: new Date().toISOString(),
+        },
+      ],
+      topicDiagnostics: [
+        { topic_id: 'topic-1', topic_name: 'Force, Motion & Friction', topic_name_odia: 'ବଳ, ଗତି ଏବଂ ଘର୍ଷଣ', subject: 'STEM - Physics', grade: 7, average_accuracy: 86, attempts_count: 24, is_weak_topic: false },
+        { topic_id: 'topic-3', topic_name: 'Acids, Bases & Indicators', topic_name_odia: 'ଅମ୍ଳ, କ୍ଷାରକ ଏବଂ ସୂଚକ', subject: 'STEM - Chemistry', grade: 7, average_accuracy: 54, attempts_count: 19, is_weak_topic: true },
+        { topic_id: 'topic-5', topic_name: 'Plant Nutrition & Photosynthesis', topic_name_odia: 'ଉଦ୍ଭିଦରେ ପୋଷଣ ଏବଂ ଆଲୋକସଂଶ୍ଳେଷଣ', subject: 'STEM - Biology', grade: 7, average_accuracy: 91, attempts_count: 31, is_weak_topic: false },
+        { topic_id: 'topic-7', topic_name: 'Fractions, Decimals & Ratios', topic_name_odia: 'ଗଣିତ: ଭଗ୍ନାଂଶ, ଦଶମିକ ଏବଂ ଅନୁପାତ', subject: 'STEM - Mathematics', grade: 7, average_accuracy: 58, attempts_count: 22, is_weak_topic: true },
+      ],
+      recentActivity: [
+        {
+          id: 'act-1',
+          attempt_uuid: 'uuid-101',
+          student_id: '00000000-0000-0000-0000-000000000001',
+          student_name: 'Subhashree Dash',
+          class_section: '7-A',
+          lesson_title: 'Autotrophic Nutrition & Chlorophyll',
+          lesson_title_odia: 'ସ୍ୱଭୋଜୀ ପୋଷଣ ଏବଂ ହରିତ୍ କଣିକା',
+          subject: 'STEM - Biology',
+          score: 30,
+          total_questions: 3,
+          correct_answers: 3,
+          submitted_at: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+          status: 'synced',
+        },
+        {
+          id: 'act-2',
+          attempt_uuid: 'uuid-102',
+          student_id: '00000000-0000-0000-0000-000000000004',
+          student_name: 'Debasish Mohanty',
+          class_section: '7-A',
+          lesson_title: 'Acids and Bases in Daily Life',
+          lesson_title_odia: 'ଦୈନନ୍ଦିନ ଜୀବନରେ ଅମ୍ଳ ଏବଂ କ୍ଷାରକ',
+          subject: 'STEM - Chemistry',
+          score: 15,
+          total_questions: 3,
+          correct_answers: 1,
+          submitted_at: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
+          status: 'synced',
+        },
+        {
+          id: 'act-3',
+          attempt_uuid: 'uuid-103',
+          student_id: '00000000-0000-0000-0000-000000000005',
+          student_name: 'Priyanka Nayak',
+          class_section: '7-A',
+          lesson_title: 'Understanding Force: Push and Pull',
+          lesson_title_odia: 'ବଳର ଧାରଣା: ଠେଲା ଏବଂ ଟଣା',
+          subject: 'STEM - Physics',
+          score: 25,
+          total_questions: 3,
+          correct_answers: 3,
+          submitted_at: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
+          status: 'synced',
+        },
+      ],
     };
   }
 }

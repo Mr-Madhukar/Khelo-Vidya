@@ -144,6 +144,66 @@ class InMemDB {
         created_at: new Date().toISOString(),
       },
       {
+        id: '00000000-0000-0000-0000-000000000004',
+        role: 'student',
+        name: 'Debasish Mohanty',
+        email_or_username: 'debasish_7a',
+        password_hash: demoPasswordHash,
+        school_id: 'sch-1',
+        class_section: '7-A',
+        grade: 7,
+        language_pref: 'or',
+        created_at: new Date().toISOString(),
+      },
+      {
+        id: '00000000-0000-0000-0000-000000000005',
+        role: 'student',
+        name: 'Priyanka Nayak',
+        email_or_username: 'priyanka_7a',
+        password_hash: demoPasswordHash,
+        school_id: 'sch-1',
+        class_section: '7-A',
+        grade: 7,
+        language_pref: 'or',
+        created_at: new Date().toISOString(),
+      },
+      {
+        id: '00000000-0000-0000-0000-000000000006',
+        role: 'student',
+        name: 'Rajesh Kumar Sahoo',
+        email_or_username: 'rajesh_7b',
+        password_hash: demoPasswordHash,
+        school_id: 'sch-1',
+        class_section: '7-B',
+        grade: 7,
+        language_pref: 'or',
+        created_at: new Date().toISOString(),
+      },
+      {
+        id: '00000000-0000-0000-0000-000000000007',
+        role: 'student',
+        name: 'Lipika Sethi',
+        email_or_username: 'lipika_7b',
+        password_hash: demoPasswordHash,
+        school_id: 'sch-1',
+        class_section: '7-B',
+        grade: 7,
+        language_pref: 'or',
+        created_at: new Date().toISOString(),
+      },
+      {
+        id: '00000000-0000-0000-0000-000000000008',
+        role: 'student',
+        name: 'Manas Ranjan Pradhan',
+        email_or_username: 'manas_7a',
+        password_hash: demoPasswordHash,
+        school_id: 'sch-1',
+        class_section: '7-A',
+        grade: 7,
+        language_pref: 'or',
+        created_at: new Date().toISOString(),
+      },
+      {
         id: '00000000-0000-0000-0000-000000000002',
         role: 'teacher',
         name: 'Pradeep Kumar Nayak',
@@ -211,6 +271,25 @@ class InMemDB {
         });
       });
     });
+
+    // Seed initial student progress for class analytics
+    this.progress = [
+      { id: 'p-1', student_id: '00000000-0000-0000-0000-000000000001', topic_id: 'topic-1', mastery_level: 100, total_points: 50, lessons_completed: 2, last_activity_at: new Date().toISOString() },
+      { id: 'p-2', student_id: '00000000-0000-0000-0000-000000000001', topic_id: 'topic-5', mastery_level: 100, total_points: 60, lessons_completed: 2, last_activity_at: new Date().toISOString() },
+      { id: 'p-3', student_id: '00000000-0000-0000-0000-000000000004', topic_id: 'topic-1', mastery_level: 80, total_points: 40, lessons_completed: 2, last_activity_at: new Date().toISOString() },
+      { id: 'p-4', student_id: '00000000-0000-0000-0000-000000000004', topic_id: 'topic-3', mastery_level: 50, total_points: 25, lessons_completed: 1, last_activity_at: new Date().toISOString() },
+      { id: 'p-5', student_id: '00000000-0000-0000-0000-000000000005', topic_id: 'topic-5', mastery_level: 90, total_points: 55, lessons_completed: 2, last_activity_at: new Date().toISOString() },
+      { id: 'p-6', student_id: '00000000-0000-0000-0000-000000000006', topic_id: 'topic-7', mastery_level: 45, total_points: 20, lessons_completed: 1, last_activity_at: new Date().toISOString() },
+      { id: 'p-7', student_id: '00000000-0000-0000-0000-000000000007', topic_id: 'topic-1', mastery_level: 85, total_points: 45, lessons_completed: 2, last_activity_at: new Date().toISOString() },
+      { id: 'p-8', student_id: '00000000-0000-0000-0000-000000000008', topic_id: 'topic-3', mastery_level: 55, total_points: 25, lessons_completed: 1, last_activity_at: new Date().toISOString() },
+    ];
+
+    this.badges = [
+      { id: 'b-1', student_id: '00000000-0000-0000-0000-000000000001', badge_id: 'first_step', badge_name: 'First Step in Science', badge_name_odia: 'ପ୍ରଥମ ଶିକ୍ଷା ପଦକ୍ଷେପ', earned_at: new Date().toISOString() },
+      { id: 'b-2', student_id: '00000000-0000-0000-0000-000000000001', badge_id: 'stem_explorer', badge_name: 'STEM Explorer', badge_name_odia: 'STEM ଅଭିଯାତ୍ରୀ', earned_at: new Date().toISOString() },
+      { id: 'b-3', student_id: '00000000-0000-0000-0000-000000000004', badge_id: 'first_step', badge_name: 'First Step in Science', badge_name_odia: 'ପ୍ରଥମ ଶିକ୍ଷା ପଦକ୍ଷେପ', earned_at: new Date().toISOString() },
+      { id: 'b-4', student_id: '00000000-0000-0000-0000-000000000005', badge_id: 'perfect_score', badge_name: 'Perfect Score 100%', badge_name_odia: 'ଶତ ପ୍ରତିଶତ କୁଇଜ୍ ସ୍କୋର', earned_at: new Date().toISOString() },
+    ];
   }
 
   query(sql: string, params: unknown[] = []): { rows: unknown[]; rowCount: number } {
@@ -242,6 +321,15 @@ class InMemDB {
       return { rows: [], rowCount: 0 };
     }
 
+    // 3b. SELECT FROM users for teacher (student list)
+    if (/SELECT .* FROM users/i.test(cleanSql)) {
+      if (/WHERE (u\.)?role = 'student'/i.test(cleanSql)) {
+        const students = this.users.filter((u) => u.role === 'student');
+        return { rows: students, rowCount: students.length };
+      }
+      return { rows: [...this.users], rowCount: this.users.length };
+    }
+
     // 4. INSERT INTO users
     if (/INSERT INTO users/i.test(cleanSql)) {
       const id = crypto.randomUUID();
@@ -270,7 +358,7 @@ class InMemDB {
         filtered = filtered.filter((t) => t.grade === gradeVal);
       }
       if (/ct\.subject ILIKE \$/i.test(cleanSql)) {
-        const subVal = String(params[pIdx++] || '').toLowerCase();
+        const subVal = String(params[pIdx++] || '').toLowerCase().replace(/%/g, '');
         filtered = filtered.filter((t) => t.subject.toLowerCase().includes(subVal));
       }
 
@@ -292,6 +380,11 @@ class InMemDB {
       if (/ct\.grade = \$/i.test(cleanSql)) {
         const gradeVal = Number(params[pIdx++]);
         const matchingTopicIds = this.topics.filter((t) => t.grade === gradeVal).map((t) => t.id);
+        filtered = filtered.filter((l) => matchingTopicIds.includes(l.topic_id));
+      }
+      if (/ct\.subject ILIKE \$/i.test(cleanSql)) {
+        const subVal = String(params[pIdx++] || '').toLowerCase().replace(/%/g, '');
+        const matchingTopicIds = this.topics.filter((t) => t.subject.toLowerCase().includes(subVal)).map((t) => t.id);
         filtered = filtered.filter((l) => matchingTopicIds.includes(l.topic_id));
       }
 
@@ -341,6 +434,24 @@ class InMemDB {
     if (/SELECT .* FROM attempts WHERE attempt_uuid = \$1/i.test(cleanSql)) {
       const att = this.attempts.filter((a) => a.attempt_uuid === params[0]);
       return { rows: att, rowCount: att.length };
+    }
+
+    // 9b. SELECT FROM attempts for teacher (all attempts)
+    if (/SELECT .* FROM attempts/i.test(cleanSql) && !/WHERE/i.test(cleanSql)) {
+      const rows = this.attempts.map((a) => {
+        const lesson = this.lessons.find((l) => l.id === a.lesson_id);
+        const topic = lesson ? this.topics.find((t) => t.id === lesson.topic_id) : undefined;
+        return {
+          ...a,
+          lesson_title: lesson?.title || 'STEM Lesson',
+          lesson_title_odia: lesson?.title_odia || '',
+          subject: topic?.subject || 'STEM',
+          topic_name: topic?.topic_name || '',
+          topic_name_odia: topic?.topic_name_odia || '',
+          topic_id: topic?.id || '',
+        };
+      });
+      return { rows, rowCount: rows.length };
     }
 
     // 10. INSERT INTO attempts
@@ -491,6 +602,21 @@ class InMemDB {
           topic_name: topic?.topic_name || '',
           topic_name_odia: topic?.topic_name_odia || '',
           total_topic_lessons: topicLessonsCount,
+        };
+      });
+      return { rows, rowCount: rows.length };
+    }
+
+    // 19b. SELECT FROM progress (all students for teacher)
+    if (/SELECT .* FROM progress/i.test(cleanSql)) {
+      const rows = this.progress.map((p) => {
+        const topic = this.topics.find((t) => t.id === p.topic_id);
+        return {
+          ...p,
+          subject: topic?.subject || 'STEM',
+          grade: topic?.grade || 7,
+          topic_name: topic?.topic_name || '',
+          topic_name_odia: topic?.topic_name_odia || '',
         };
       });
       return { rows, rowCount: rows.length };

@@ -34,7 +34,10 @@ export const LessonCatalogPage: React.FC = () => {
     setLoading(true);
     try {
       const [fetchedTopics, fetchedLessons] = await Promise.all([
-        fetchTopics(selectedGrade === 'all' ? undefined : selectedGrade),
+        fetchTopics(
+          selectedGrade === 'all' ? undefined : selectedGrade,
+          selectedSubject === 'all' ? undefined : selectedSubject
+        ),
         fetchLessons({
           grade: selectedGrade === 'all' ? undefined : selectedGrade,
           subject: selectedSubject === 'all' ? undefined : selectedSubject,
@@ -75,8 +78,10 @@ export const LessonCatalogPage: React.FC = () => {
     const topicMatch =
       l.topic_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (l.topic_name_odia && l.topic_name_odia.includes(searchQuery));
+    
+    const cleanSub = selectedSubject.toLowerCase().replace('maths', 'math').replace('mathematics', 'math');
     const subjectMatch =
-      selectedSubject === 'all' || l.subject.toLowerCase().includes(selectedSubject.toLowerCase());
+      selectedSubject === 'all' || l.subject.toLowerCase().includes(cleanSub);
 
     return (titleMatch || topicMatch) && subjectMatch;
   });

@@ -188,3 +188,61 @@ export interface StudentProgressSummary {
   }>;
 }
 
+export interface TeacherStudentRosterItem {
+  id: string;
+  name: string;
+  email_or_username: string;
+  school_id: string | null;
+  class_section: string | null;
+  grade: number | null;
+  language_pref: LanguageCode;
+  created_at: string;
+  total_points: number;
+  lessons_completed: number;
+  mastery_percent: number;
+  quizzes_taken: number;
+  weak_topics: string[];
+  last_activity_at: string;
+}
+
+export interface TeacherTopicDiagnostic {
+  topic_id: string;
+  topic_name: string;
+  topic_name_odia?: string;
+  subject: string;
+  grade: number;
+  average_accuracy: number;
+  attempts_count: number;
+  is_weak_topic: boolean;
+}
+
+export interface TeacherRecentActivityItem {
+  id: string;
+  attempt_uuid: string;
+  student_id: string;
+  student_name: string;
+  class_section: string;
+  lesson_title: string;
+  lesson_title_odia?: string;
+  subject: string;
+  score: number;
+  total_questions: number;
+  correct_answers: number;
+  submitted_at: string;
+  status: string;
+}
+
+export interface ClassSummaryResponse {
+  success: boolean;
+  classStats: {
+    totalStudents: number;
+    totalAttempts: number;
+    classAvgScore: number;
+    weakTopicsCount: number;
+  };
+  students: TeacherStudentRosterItem[];
+  topicDiagnostics: TeacherTopicDiagnostic[];
+  recentActivity: TeacherRecentActivityItem[];
+}
+
+
