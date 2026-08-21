@@ -1,7 +1,9 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Header } from './components/Header.tsx';
 import { ProtectedRoute } from './components/ProtectedRoute.tsx';
+import { initOfflineDatabase } from './db/dexie.ts';
+import { initSyncEngine } from './services/syncService.ts';
 
 const LandingPage = React.lazy(() => import('./pages/LandingPage.tsx').then((m) => ({ default: m.LandingPage })));
 const LoginPage = React.lazy(() => import('./pages/LoginPage.tsx').then((m) => ({ default: m.LoginPage })));
@@ -33,6 +35,17 @@ const PageLoader: React.FC = () => (
 );
 
 export const App: React.FC = () => {
+  useEffect(() => {
+    // 1. Pre-seed offline database so all lessons & quizzes are instantly available offline
+    initOfflineDatabase();
+
+    // 2. Start background sync engine
+    const cleanupSync = initSyncEngine();
+    return () => {
+      cleanupSync();
+    };
+  }, []);
+
   return (
     <BrowserRouter>
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -71,4 +84,3 @@ export const App: React.FC = () => {
 };
 
 export default App;
-

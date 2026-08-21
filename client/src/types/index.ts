@@ -232,8 +232,21 @@ export interface TeacherRecentActivityItem {
   status: string;
 }
 
+export interface TeacherFacultyItem {
+  id: string;
+  name: string;
+  email_or_username: string;
+  school_id: string | null;
+  school_name?: string | null;
+  class_section?: string | null;
+  role: string;
+  created_at: string;
+}
+
 export interface ClassSummaryResponse {
   success: boolean;
+  schoolName?: string | null;
+  udiseCode?: string | null;
   classStats: {
     totalStudents: number;
     totalAttempts: number;
@@ -241,8 +254,10 @@ export interface ClassSummaryResponse {
     weakTopicsCount: number;
   };
   students: TeacherStudentRosterItem[];
+  teachers?: TeacherFacultyItem[];
   topicDiagnostics: TeacherTopicDiagnostic[];
   recentActivity: TeacherRecentActivityItem[];
 }
+
 
 

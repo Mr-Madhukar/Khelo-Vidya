@@ -25,7 +25,20 @@ export const ProgressPage: React.FC = () => {
 
   useEffect(() => {
     loadProgress();
+
+    const handleSync = () => {
+      loadProgress();
+    };
+
+    window.addEventListener('khelo-sync-complete', handleSync);
+    window.addEventListener('focus', handleSync);
+
+    return () => {
+      window.removeEventListener('khelo-sync-complete', handleSync);
+      window.removeEventListener('focus', handleSync);
+    };
   }, []);
+
 
   const loadProgress = async () => {
     setLoading(true);

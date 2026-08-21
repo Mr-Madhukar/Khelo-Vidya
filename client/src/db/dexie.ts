@@ -56,3 +56,22 @@ export const clearOfflineSession = async () => {
   await db.session.delete('token');
   await db.session.delete('user');
 };
+
+// Pre-populate Dexie with full offline lessons and quiz questions on initial load
+export const initOfflineDatabase = async () => {
+  try {
+    const { CLIENT_SEED_PACKS } = await import('./clientSeedData.ts');
+    for (const pack of CLIENT_SEED_PACKS) {
+      for (const lesson of pack.lessons) {
+        const existing = await db.lessons_cache.get(lesson.id);
+        // Put if not exists or if existing lesson is empty/lacks questions
+        if (!existing || !existing.questions || existing.questions.length === 0) {
+          await db.lessons_cache.put(lesson);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('[Dexie] Failed to initialize offline seed lessons:', err);
+  }
+};
+

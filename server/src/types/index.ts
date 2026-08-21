@@ -117,3 +117,15 @@ export interface JWTPayload {
   name: string;
   grade?: number | null;
 }
+
+export interface TeacherFacultyItem {
+  id: string;
+  name: string;
+  email_or_username: string;
+  school_id: string | null;
+  school_name?: string | null;
+  class_section?: string | null;
+  role: string;
+  created_at: string;
+}
+

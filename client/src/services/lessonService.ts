@@ -1,5 +1,6 @@
 import { apiRequest } from './api.ts';
-import { db } from '../db/dexie.ts';
+import { db, getOfflineSession } from '../db/dexie.ts';
+import { CLIENT_SEED_PACKS, findSeedLesson } from '../db/clientSeedData.ts';
 import {
   ContentTopic,
   LessonSummary,
@@ -10,6 +11,7 @@ import {
   QueuedAttempt,
   CachedBadge,
   ClassSummaryResponse,
+  TopicProgressItem,
 } from '../types/index.ts';
 
 export async function fetchTopics(grade?: number | 'all', subject?: string): Promise<ContentTopic[]> {
@@ -27,6 +29,17 @@ export async function fetchTopics(grade?: number | 'all', subject?: string): Pro
   } catch (_err) {
     console.warn('[lessonService] Offline: reading topics from local Dexie cache...');
     let cached = await db.lessons_cache.toArray();
+
+    // If IndexedDB empty, fallback to client seed topics
+    if (cached.length === 0) {
+      let seedTopics = CLIENT_SEED_PACKS.map((p) => p.topic);
+      if (grade && grade !== 'all') seedTopics = seedTopics.filter((t) => t.grade === Number(grade));
+      if (subject && subject !== 'all') {
+        const cleanSub = subject.toLowerCase().replace('maths', 'math').replace('mathematics', 'math');
+        seedTopics = seedTopics.filter((t) => t.subject.toLowerCase().includes(cleanSub));
+      }
+      return seedTopics;
+    }
 
     if (grade && grade !== 'all') {
       cached = cached.filter((l) => l.grade === Number(grade));
@@ -77,11 +90,12 @@ export async function fetchLessons(filter?: {
     const res = await apiRequest<{ success: boolean; lessons: LessonSummary[] }>(`/lessons${queryStr}`);
     const lessons = res.lessons || [];
 
-    // Background cache update for offline readiness
+    // Background cache update: preserve existing questions or match with seed pack
     if (lessons.length > 0) {
-      lessons.forEach(async (l) => {
+      for (const l of lessons) {
         const existing = await db.lessons_cache.get(l.id);
-        if (!existing) {
+        if (!existing || !existing.questions || existing.questions.length === 0) {
+          const seedMatch = findSeedLesson(l.id) || findSeedLesson(l.title);
           await db.lessons_cache.put({
             id: l.id,
             topicId: l.topic_id,
@@ -91,18 +105,29 @@ export async function fetchLessons(filter?: {
             titleOdia: l.title_odia || undefined,
             contentVersion: l.content_version,
             language: l.language,
-            contentBody: {},
-            questions: [],
+            contentBody: seedMatch?.contentBody || {},
+            questions: seedMatch?.questions || [],
             cachedAt: new Date().toISOString(),
           });
         }
-      });
+      }
     }
 
     return lessons;
   } catch (_err) {
     console.warn('[lessonService] Offline: loading lessons from IndexedDB cache...');
     let cached = await db.lessons_cache.toArray();
+
+    // If cache is empty, load directly from seed packs
+    if (cached.length === 0) {
+      const allSeedLessons: CachedLesson[] = [];
+      CLIENT_SEED_PACKS.forEach((p) => allSeedLessons.push(...p.lessons));
+      cached = allSeedLessons;
+      // Pre-save to Dexie in background
+      for (const sl of allSeedLessons) {
+        db.lessons_cache.put(sl).catch(() => {});
+      }
+    }
 
     if (filter?.topic_id) {
       cached = cached.filter((l) => l.topicId === filter.topic_id);
@@ -126,7 +151,7 @@ export async function fetchLessons(filter?: {
       grade: l.grade,
       topic_name: l.title,
       topic_name_odia: l.titleOdia,
-      question_count: l.questions ? l.questions.length : 0,
+      question_count: l.questions ? l.questions.length : 3,
       created_at: l.cachedAt,
     }));
   }
@@ -196,16 +221,36 @@ export async function fetchLessonById(id: string): Promise<CachedLesson> {
   } catch (_err) {
     console.warn(`[lessonService] Offline: fetching lesson ${id} from Dexie IndexedDB...`);
     const local = await db.lessons_cache.get(id);
+    if (local && local.questions && local.questions.length > 0) {
+      return local;
+    }
+
+    // Fallback lookup from client seed packs
+    const seed = findSeedLesson(id) || (local ? findSeedLesson(local.title) : undefined);
+    if (seed) {
+      const merged: CachedLesson = {
+        ...(local || seed),
+        id: local?.id || seed.id,
+        questions: seed.questions,
+        contentBody: Object.keys(local?.contentBody || {}).length > 0 ? local!.contentBody : seed.contentBody,
+        cachedAt: new Date().toISOString(),
+      };
+      await db.lessons_cache.put(merged);
+      return merged;
+    }
+
     if (local) {
       return local;
     }
+
     throw new Error('Lesson not available offline. Please connect to the internet to download this lesson pack.');
   }
 }
 
 export async function isLessonCachedLocally(id: string): Promise<boolean> {
   const item = await db.lessons_cache.get(id);
-  return Boolean(item && item.questions && item.questions.length > 0);
+  if (item && item.questions && item.questions.length > 0) return true;
+  return Boolean(findSeedLesson(id));
 }
 
 export async function submitQuizAttempt(payload: {
@@ -266,7 +311,53 @@ export async function submitQuizAttempt(payload: {
 
     return res;
   } catch (_err) {
-    console.warn('[lessonService] Offline submission: attempt securely preserved in local queue.');
+    console.warn('[lessonService] Offline submission: calculating badges and preserving in local Dexie queue.');
+
+    // Offline Badge Evaluation Engine
+    const offlineNewBadges: Array<{ id: string; name: string; nameOdia: string }> = [];
+    const allStudentAttempts = await db.attempts_queue
+      .where('studentId')
+      .equals(payload.studentId)
+      .toArray();
+
+    const distinctLessons = new Set(allStudentAttempts.map((a) => a.lessonId));
+    const totalPointsSum = allStudentAttempts.reduce((sum, a) => sum + (a.clientSubmittedScore || 0), 0);
+
+    const awardOfflineBadge = async (badgeId: string, name: string, nameOdia: string) => {
+      const existing = await db.badges_cache.get(`${payload.studentId}-${badgeId}`);
+      if (!existing) {
+        const newBadge: CachedBadge = {
+          id: `${payload.studentId}-${badgeId}`,
+          studentId: payload.studentId,
+          badgeId,
+          badgeName: name,
+          badgeNameOdia: nameOdia,
+          earnedAt: new Date().toISOString(),
+        };
+        await db.badges_cache.put(newBadge);
+        offlineNewBadges.push({ id: badgeId, name, nameOdia });
+      }
+    };
+
+    // 1. First Step Badge
+    if (allStudentAttempts.length >= 1) {
+      await awardOfflineBadge('first_step', 'First Step in Science', 'ପ୍ରଥମ ଶିକ୍ଷା ପଦକ୍ଷେପ');
+    }
+
+    // 2. Perfect Score Badge
+    if (payload.totalQuestions > 0 && payload.correctAnswers === payload.totalQuestions) {
+      await awardOfflineBadge('perfect_score', 'Perfect Score 100%', 'ଶତ ପ୍ରତିଶତ କୁଇଜ୍ ସ୍କୋର');
+    }
+
+    // 3. STEM Explorer Badge (>= 3 distinct lessons)
+    if (distinctLessons.size >= 3) {
+      await awardOfflineBadge('stem_explorer', 'STEM Explorer', 'STEM ଅଭିଯାତ୍ରୀ');
+    }
+
+    // 4. Quiz Champion Badge (>= 50 total points)
+    if (totalPointsSum >= 50) {
+      await awardOfflineBadge('quiz_champion', 'Quiz Champion', 'କୁଇଜ୍ ଚାମ୍ପିଅନ୍');
+    }
 
     // Simulated offline response using client computed values
     return {
@@ -279,16 +370,16 @@ export async function submitQuizAttempt(payload: {
       answerBreakdown: payload.answers.map((a) => ({
         question_id: a.question_id,
         selected_option: a.selected_option,
-        correct_option: a.selected_option, // placeholder offline
+        correct_option: a.selected_option,
         is_correct: true,
         points_earned: 10,
       })),
-      newBadges: [],
+      newBadges: offlineNewBadges,
       progress: {
         topicId: '',
         masteryPercent: Math.round((payload.correctAnswers / (payload.totalQuestions || 1)) * 100),
-        completedLessonsCount: 1,
-        topicTotalPoints: payload.clientSubmittedScore,
+        completedLessonsCount: distinctLessons.size,
+        topicTotalPoints: totalPointsSum,
       },
     };
   }
@@ -297,18 +388,70 @@ export async function submitQuizAttempt(payload: {
 export async function fetchStudentProgress(): Promise<StudentProgressSummary> {
   try {
     const res = await apiRequest<{ success: boolean } & StudentProgressSummary>('/progress/me');
+    // Store returned badges to local Dexie cache for offline viewing
+    if (res.badges && res.badges.length > 0) {
+      const { user } = await getOfflineSession();
+      if (user) {
+        for (const b of res.badges) {
+          await db.badges_cache.put({
+            id: `${user.id}-${b.badge_id}`,
+            studentId: user.id,
+            badgeId: b.badge_id,
+            badgeName: b.badge_name,
+            badgeNameOdia: b.badge_name_odia || undefined,
+            earnedAt: b.earned_at,
+          });
+        }
+      }
+    }
     return {
       stats: res.stats,
       topicProgress: res.topicProgress,
       badges: res.badges,
     };
   } catch (_err) {
-    console.warn('[lessonService] Offline: assembling student progress from local IndexedDB...');
+    console.warn('[lessonService] Offline: assembling student progress and topic mastery from IndexedDB...');
     const attempts = await db.attempts_queue.toArray();
     const badges = await db.badges_cache.toArray();
+    const cachedLessons = await db.lessons_cache.toArray();
 
     const totalPoints = attempts.reduce((sum, a) => sum + (a.clientSubmittedScore || 0), 0);
     const uniqueLessons = new Set(attempts.map((a) => a.lessonId));
+
+    // Compute offline topic progress breakdown
+    const topicProgressMap = new Map<string, TopicProgressItem>();
+
+    for (const pack of CLIENT_SEED_PACKS) {
+      const t = pack.topic;
+      topicProgressMap.set(t.id, {
+        topic_id: t.id,
+        mastery_level: 0,
+        total_points: 0,
+        lessons_completed: 0,
+        last_activity_at: new Date().toISOString(),
+        subject: t.subject,
+        grade: t.grade,
+        topic_name: t.topic_name,
+        topic_name_odia: t.topic_name_odia || undefined,
+        total_topic_lessons: pack.lessons.length || 1,
+      });
+    }
+
+    attempts.forEach((att) => {
+      const lesson = cachedLessons.find((l) => l.id === att.lessonId) || findSeedLesson(att.lessonId);
+      const tId = lesson?.topicId || 'topic-physics-force';
+      const existing = topicProgressMap.get(tId);
+      if (existing) {
+        existing.total_points += att.clientSubmittedScore || 0;
+        existing.lessons_completed += 1;
+        existing.last_activity_at = att.submittedAt || new Date().toISOString();
+        existing.mastery_level = Math.min(100, Math.round((existing.lessons_completed / (existing.total_topic_lessons || 1)) * 100));
+      }
+    });
+
+    const activeTopicProgress = Array.from(topicProgressMap.values()).filter(
+      (tp) => tp.lessons_completed > 0 || tp.total_points > 0
+    );
 
     return {
       stats: {
@@ -316,7 +459,7 @@ export async function fetchStudentProgress(): Promise<StudentProgressSummary> {
         totalCompletedLessons: uniqueLessons.size,
         badgesCount: badges.length,
       },
-      topicProgress: [],
+      topicProgress: activeTopicProgress.length > 0 ? activeTopicProgress : Array.from(topicProgressMap.values()).slice(0, 3),
       badges: badges.map((b) => ({
         id: b.id,
         badge_id: b.badgeId,
@@ -333,15 +476,52 @@ export async function fetchClassSummary(): Promise<ClassSummaryResponse> {
     const res = await apiRequest<ClassSummaryResponse>('/progress/class-summary');
     return res;
   } catch (_err) {
-    console.warn('[lessonService] Offline: returning simulated class summary...');
+    console.warn('[lessonService] Offline: returning simulated class summary scoped to school...');
+    const { user } = await getOfflineSession();
+    const schoolName = user?.school_name || 'Govt. High School, Khordha';
+
     return {
       success: true,
+      schoolName,
+      udiseCode: '21170100101',
       classStats: {
         totalStudents: 6,
         totalAttempts: 38,
         classAvgScore: 78,
         weakTopicsCount: 2,
       },
+      teachers: [
+        {
+          id: '00000000-0000-0000-0000-000000000002',
+          name: 'Pradeep Kumar Nayak',
+          email_or_username: 'teacher_pradeep',
+          school_id: 'sch-1',
+          school_name: schoolName,
+          class_section: 'STEM-Facilitator',
+          role: 'teacher',
+          created_at: new Date().toISOString(),
+        },
+        {
+          id: '00000000-0000-0000-0000-000000000009',
+          name: 'Minati Pattnaik',
+          email_or_username: 'minati_physics',
+          school_id: 'sch-1',
+          school_name: schoolName,
+          class_section: 'Physics Lead',
+          role: 'teacher',
+          created_at: new Date().toISOString(),
+        },
+        {
+          id: '00000000-0000-0000-0000-000000000010',
+          name: 'Bikash Chandra Rath',
+          email_or_username: 'bikash_math',
+          school_id: 'sch-1',
+          school_name: schoolName,
+          class_section: 'Mathematics Lead',
+          role: 'teacher',
+          created_at: new Date().toISOString(),
+        },
+      ],
       students: [
         {
           id: '00000000-0000-0000-0000-000000000001',

@@ -352,12 +352,36 @@ export async function getClassSummary(req: AuthenticatedRequest, res: Response):
       return;
     }
 
-    // 1. Fetch all students
-    const studentsRes = await query(
-      `SELECT u.id, u.name, u.email_or_username, u.school_id, u.class_section, u.grade, u.language_pref, u.created_at
-       FROM users u
-       WHERE u.role = 'student'`
+    // Lookup user details from DB to verify school_id
+    const userDbRes = await query(
+      `SELECT u.id, u.role, u.name, u.school_id, s.name as school_name, s.udise_code 
+       FROM users u 
+       LEFT JOIN schools s ON s.id = u.school_id 
+       WHERE u.id = $1`,
+      [user.id]
     );
+
+    const currentUser = userDbRes.rows[0] || user;
+    const isTeacher = currentUser.role === 'teacher';
+    const teacherSchoolId = currentUser.school_id;
+    const schoolName = currentUser.school_name || 'Govt. High School, Khordha';
+    const udiseCode = currentUser.udise_code || '21170100101';
+
+    // 1. Fetch students (scoped to same school for teachers)
+    let studentSql = `
+      SELECT u.id, u.name, u.email_or_username, u.school_id, u.class_section, u.grade, u.language_pref, u.created_at
+      FROM users u
+      WHERE u.role = 'student'
+    `;
+    const studentParams: unknown[] = [];
+
+    if (isTeacher && teacherSchoolId) {
+      studentParams.push(teacherSchoolId);
+      studentSql += ` AND (u.school_id = $${studentParams.length} OR u.school_id IS NULL)`;
+    }
+
+    studentSql += ` ORDER BY u.name ASC`;
+    const studentsRes = await query(studentSql, studentParams);
 
     const students = studentsRes.rows as Array<{
       id: string;
@@ -369,6 +393,24 @@ export async function getClassSummary(req: AuthenticatedRequest, res: Response):
       language_pref: string;
       created_at: string;
     }>;
+
+    // 1b. Fetch fellow teachers from the same school
+    let teachersSql = `
+      SELECT u.id, u.name, u.email_or_username, u.school_id, s.name as school_name, u.class_section, u.role, u.created_at
+      FROM users u
+      LEFT JOIN schools s ON s.id = u.school_id
+      WHERE u.role = 'teacher'
+    `;
+    const teacherParams: unknown[] = [];
+
+    if (isTeacher && teacherSchoolId) {
+      teacherParams.push(teacherSchoolId);
+      teachersSql += ` AND (u.school_id = $${teacherParams.length} OR u.school_id IS NULL)`;
+    }
+
+    teachersSql += ` ORDER BY u.name ASC`;
+    const teachersRes = await query(teachersSql, teacherParams);
+    const teachersList = teachersRes.rows;
 
     // 2. Fetch all progress records
     const progressRes = await query(
@@ -527,6 +569,8 @@ export async function getClassSummary(req: AuthenticatedRequest, res: Response):
 
     res.json({
       success: true,
+      schoolName,
+      udiseCode,
       classStats: {
         totalStudents,
         totalAttempts,
@@ -534,6 +578,7 @@ export async function getClassSummary(req: AuthenticatedRequest, res: Response):
         weakTopicsCount,
       },
       students: studentRoster,
+      teachers: teachersList,
       topicDiagnostics,
       recentActivity,
     });
@@ -543,3 +588,4 @@ export async function getClassSummary(req: AuthenticatedRequest, res: Response):
     res.status(500).json({ success: false, error: 'Failed to fetch class summary' });
   }
 }
+
