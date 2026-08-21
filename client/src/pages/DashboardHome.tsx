@@ -244,8 +244,8 @@ export const DashboardHome: React.FC = () => {
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-card)', paddingBottom: '0.5rem', flexWrap: 'wrap' }}>
+        {/* Tab Navigation (Smooth swipeable strip on mobile) */}
+        <div className="scrollable-pill-strip" style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--border-card)', paddingBottom: '0.5rem' }}>
           {([
             { id: 'roster', labelEn: '👥 Student Roster & Live Scores', labelOr: '👥 ଛାତ୍ର ତାଲିକା ଓ ସ୍କୋର' },
             { id: 'diagnostics', labelEn: '📊 Topic Diagnostics & Weak Areas', labelOr: '📊 ପାଠ୍ୟ ବିଶ୍ଳେଷଣ ଓ ଦୁର୍ବଳ ଅଂଶ' },
@@ -258,9 +258,11 @@ export const DashboardHome: React.FC = () => {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 style={{
-                  padding: '0.6rem 1.15rem',
-                  fontSize: '0.9rem',
+                  padding: '0.55rem 1rem',
+                  fontSize: '0.88rem',
                   fontWeight: 700,
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
                   borderRadius: 'var(--radius-md)',
                   background: isActive ? 'var(--accent-orange)' : 'var(--bg-surface)',
                   color: isActive ? '#ffffff' : 'var(--text-secondary)',
@@ -738,7 +740,7 @@ export const DashboardHome: React.FC = () => {
               style={{
                 width: '100%',
                 maxWidth: '560px',
-                padding: '2rem',
+                padding: 'clamp(1.25rem, 4vw, 2rem)',
                 borderRadius: 'var(--radius-xl)',
                 position: 'relative',
                 maxHeight: '90vh',

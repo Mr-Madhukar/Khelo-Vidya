@@ -161,15 +161,13 @@ export const LessonCatalogPage: React.FC = () => {
       <div
         style={{
           display: 'flex',
-          flexWrap: 'wrap',
+          flexDirection: 'column',
           gap: '1rem',
-          alignItems: 'center',
-          justifyContent: 'space-between',
           marginBottom: '1.75rem',
         }}
       >
-        {/* Subject Filter Pills */}
-        <div style={{ display: 'flex', gap: '0.45rem', flexWrap: 'wrap' }}>
+        {/* Subject Filter Pills (Smooth swipeable strip on mobile) */}
+        <div className="scrollable-pill-strip">
           {[
             { id: 'all', labelEn: 'All STEM', labelOr: 'ସମସ୍ତ' },
             { id: 'physics', labelEn: 'Physics', labelOr: 'ପଦାର୍ଥ ବିଜ୍ଞାନ' },
@@ -184,10 +182,12 @@ export const LessonCatalogPage: React.FC = () => {
                 onClick={() => setSelectedSubject(subj.id)}
                 className="btn"
                 style={{
-                  minHeight: '36px',
-                  padding: '0.35rem 0.85rem',
+                  minHeight: '38px',
+                  padding: '0.35rem 0.95rem',
                   fontSize: '0.85rem',
                   fontWeight: 700,
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
                   background: isSelected ? 'var(--accent-orange)' : 'var(--bg-surface)',
                   color: isSelected ? '#ffffff' : 'var(--text-secondary)',
                   border: `1px solid ${isSelected ? 'var(--accent-orange)' : 'var(--border-card)'}`,
@@ -201,16 +201,17 @@ export const LessonCatalogPage: React.FC = () => {
         </div>
 
         {/* Grade & Search Inputs */}
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <select
             value={selectedGrade}
             onChange={(e) => setSelectedGrade(e.target.value === 'all' ? 'all' : parseInt(e.target.value, 10))}
             className="form-select"
             style={{
               padding: '0.4rem 0.75rem',
-              fontSize: '0.85rem',
-              minHeight: '36px',
+              fontSize: '0.9rem',
+              minHeight: '38px',
               width: 'auto',
+              flex: '1 1 140px',
             }}
           >
             <option value={7}>{language === 'or' ? '୭ମ ଶ୍ରେଣୀ (Grade 7)' : 'Grade 7'}</option>
@@ -220,10 +221,10 @@ export const LessonCatalogPage: React.FC = () => {
             <option value="all">{language === 'or' ? 'ସମସ୍ତ ଶ୍ରେଣୀ' : 'All Grades'}</option>
           </select>
 
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative', flex: '2 1 200px' }}>
             <Search
-              size={15}
-              style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}
+              size={16}
+              style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}
             />
             <input
               type="text"
@@ -232,10 +233,10 @@ export const LessonCatalogPage: React.FC = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="form-input"
               style={{
-                padding: '0.4rem 0.75rem 0.4rem 2rem',
-                fontSize: '0.85rem',
-                minHeight: '36px',
-                minWidth: '180px',
+                padding: '0.4rem 0.75rem 0.4rem 2.25rem',
+                fontSize: '0.9rem',
+                minHeight: '38px',
+                width: '100%',
               }}
             />
           </div>

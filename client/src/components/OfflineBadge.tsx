@@ -36,18 +36,18 @@ export const OfflineBadge: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+    <div className="offline-badge-wrapper">
       {isOnline ? (
-        <span className="badge badge-online">
+        <span className="badge badge-online" title={t('online')}>
           <span className="status-dot dot-online" />
           <Wifi size={13} />
-          {t('online')}
+          <span className="badge-status-text">{t('online')}</span>
         </span>
       ) : (
-        <span className="badge badge-offline">
+        <span className="badge badge-offline" title={t('offline')}>
           <span className="status-dot dot-offline" />
           <WifiOff size={13} />
-          {t('offline')}
+          <span className="badge-status-text">{t('offline')}</span>
         </span>
       )}
 
@@ -62,7 +62,7 @@ export const OfflineBadge: React.FC = () => {
           title={`${pendingCount} attempt(s) queued for sync`}
         >
           <RefreshCw size={12} className="animate-spin" />
-          {pendingCount}
+          <span>{pendingCount}</span>
         </span>
       )}
     </div>
